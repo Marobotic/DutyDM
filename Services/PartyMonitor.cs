@@ -17,13 +17,18 @@ namespace DutyDM.Services
     ///   - joining a PF that's already 7/8 (your size goes 1 -> 8 in one step), or
     ///   - re-forming after a duty (members blink out and back, snapping 1 -> 8).
     /// Alerts are also suppressed while you're inside a duty - a duty party is always
-    /// 8/8, so notifying there is pointless. State is tracked silently throughout so the
-    /// edge detection stays correct.
+    /// 8/8, so notifying there is pointless - and for a short cooldown after you leave
+    /// one, since members re-form at their own pace (you might exit first and watch the
+    /// party climb 7 -> 8 behind you), which would otherwise look like a real fill.
+    /// State is tracked silently throughout so the edge detection stays correct.
     /// </summary>
     public class PartyMonitor : IDisposable
     {
         private const int FullPartySize = 8;
         private static readonly TimeSpan CheckInterval = TimeSpan.FromMilliseconds(500);
+        // Block alerts for this long after leaving a duty, so the party re-forming
+        // outside the instance can't be mistaken for a fresh fill.
+        private static readonly TimeSpan PostDutyCooldown = TimeSpan.FromSeconds(30);
 
         private readonly IFramework framework;
         private readonly IPartyList partyList;
@@ -36,7 +41,9 @@ namespace DutyDM.Services
         private bool subscribed;
         private bool disposed;
         private int lastSize;
+        private bool wasBoundByDuty;
         private TimeSpan sinceLastCheck;
+        private TimeSpan postDutyCooldownLeft;
 
         public PartyMonitor(
             Func<bool> getEnableState,
@@ -71,7 +78,9 @@ namespace DutyDM.Services
             // Seed from the current size so enabling while already full (or jumping
             // straight to full next tick) doesn't fire.
             lastSize = GetPartySize();
+            wasBoundByDuty = IsBoundByDuty();
             sinceLastCheck = TimeSpan.Zero;
+            postDutyCooldownLeft = TimeSpan.Zero;
             framework.Update += OnFrameworkUpdate;
             subscribed = true;
             pluginLog.Info("DutyDM: party monitor on.");
@@ -92,23 +101,37 @@ namespace DutyDM.Services
             // Throttle: party state only needs checking a couple times a second.
             sinceLastCheck += fw.UpdateDelta;
             if (sinceLastCheck < CheckInterval) return;
+            TimeSpan elapsed = sinceLastCheck;
             sinceLastCheck = TimeSpan.Zero;
+
+            // Tick down the post-duty cooldown, then (re)arm it the moment we leave a duty.
+            if (postDutyCooldownLeft > TimeSpan.Zero)
+                postDutyCooldownLeft -= elapsed;
+
+            bool boundNow = IsBoundByDuty();
+            if (wasBoundByDuty && !boundNow)
+                postDutyCooldownLeft = PostDutyCooldown;
+            wasBoundByDuty = boundNow;
 
             int size = GetPartySize();
             int prevSize = lastSize;
             lastSize = size;
 
             // Only an incremental fill - the last seat being taken (7 -> 8) - counts.
-            // A jump straight to full (joining a ready PF, re-forming after a duty) is
-            // not a moment worth a DM, so we ignore anything where the previous size
-            // wasn't exactly one short of full.
+            // A jump straight to full (e.g. joining a ready PF) is not a moment worth a
+            // DM, so we ignore anything where the previous size wasn't one short of full.
             bool justFilled = size >= FullPartySize && prevSize == FullPartySize - 1;
             if (!justFilled) return;
 
-            if (IsBoundByDuty())
+            if (boundNow)
             {
                 // In a duty the party is always 8/8, so the alert would just be noise.
                 pluginLog.Info($"DutyDM: party full ({size}/{FullPartySize}) but in a duty - skipping alert.");
+            }
+            else if (postDutyCooldownLeft > TimeSpan.Zero)
+            {
+                // Members re-forming right after a duty - not a fresh fill, so stay quiet.
+                pluginLog.Info($"DutyDM: party full ({size}/{FullPartySize}) within post-duty cooldown - skipping alert.");
             }
             else
             {
