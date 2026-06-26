@@ -1,0 +1,25 @@
+{
+  "Author": "Mayo Botic",
+  "Name": "DutyDM",
+  "InternalName": "DutyDM",
+  "AssemblyVersion": "1.0.1",
+  "Description": "Get a Discord DM the instant your duty pops. Join the DutyDM Discord server, enter your Discord username, and the bot will message you the moment your queue is ready - with an in-game popup confirming it sent.",
+  "Punchline": "Duty-pop alerts straight to your Discord DMs.",
+  "Changelog": "Initial release.",
+  "RepoUrl": "https://github.com/Marobotic/DutyDM",
+  "ApplicableVersion": "any",
+  "DalamudApiLevel": 15,
+  "LoadRequiredState": 0,
+  "LoadSync": false,
+  "CanUnloadAsync": false,
+  "LoadPriority": 0,
+  "AcceptsFeedback": true,
+  "Tags": [
+    "duty",
+    "notification",
+    "discord",
+    "alert",
+    "duty-finder",
+    "df"
+  ]
+}
