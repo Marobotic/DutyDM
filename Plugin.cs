@@ -43,6 +43,7 @@ namespace DutyDM
             IClientState clientState,
             IFramework framework,
             IPartyList partyList,
+            ICondition condition,
             IDtrBar dtrBar)
         {
             this.pluginInterface = pluginInterface;
@@ -56,7 +57,7 @@ namespace DutyDM
 
             pushService = new PushService(Configuration, pluginLog);
             dutyListener = new DutyListener(() => Configuration.Enable, pluginLog, clientState, pushService, OnPushResult);
-            partyMonitor = new PartyMonitor(() => Configuration.PartyFullEnable, framework, partyList, pluginLog, pushService, OnPushResult);
+            partyMonitor = new PartyMonitor(() => Configuration.PartyFullEnable, framework, partyList, condition, pluginLog, pushService, OnPushResult);
             dutyListener.UpdateSubscriptionState();
             partyMonitor.UpdateSubscriptionState();
 

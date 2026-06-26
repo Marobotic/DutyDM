@@ -1,6 +1,8 @@
 using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Dalamud.Interface;
+using Dalamud.Interface.Components;
 
 namespace DutyDM
 {
@@ -32,6 +34,12 @@ namespace DutyDM
         public static readonly Vector4 NeutralBg = Hex("#36435a");
         public static readonly Vector4 NeutralHover = Hex("#414f68");
         public static readonly Vector4 TitleBg = Hex("#2b3850");
+
+        // Ko-fi's signature red, with lighter hover / darker active states.
+        public static readonly Vector4 KofiRed = Hex("#ff5e5b");
+        public static readonly Vector4 KofiRedHover = Hex("#ff7572");
+        public static readonly Vector4 KofiRedActive = Hex("#e8504d");
+        public static readonly Vector4 KofiText = Hex("#fff4f3");
 
         /// <summary>Pushes the shared ImGui colors so every window matches the PfPresets look.
         /// Returns the number of colors pushed (pass to PopStyleColor).</summary>
@@ -130,6 +138,33 @@ namespace DutyDM
             ImGui.PopStyleVar();
             ImGui.PopStyleColor(4);
             return clicked;
+        }
+
+        // Ko-fi button frame padding; shared so the width estimate matches the draw.
+        private static readonly Vector2 KofiPadding = new(12, 7);
+
+        /// <summary>A cute red Ko-fi button with a heart icon. Auto-sizes to its label.</summary>
+        public static bool KofiButton(string label)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, KofiText);
+            ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 8.0f);
+            ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, KofiPadding);
+            bool clicked = ImGuiComponents.IconButtonWithText(
+                FontAwesomeIcon.Heart, label, KofiRed, KofiRedActive, KofiRedHover);
+            ImGui.PopStyleVar(2);
+            ImGui.PopStyleColor();
+            return clicked;
+        }
+
+        /// <summary>Approximate width <see cref="KofiButton"/> will occupy, so callers can
+        /// right-align or centre it. Slightly over-estimates the heart glyph (~1em) so the
+        /// button never clips the window edge.</summary>
+        public static float KofiButtonWidth(string label)
+        {
+            float iconWidth = ImGui.GetFontSize();              // FontAwesome heart ≈ 1em
+            float gap = ImGui.GetStyle().ItemInnerSpacing.X;    // icon-to-text spacing
+            float textWidth = ImGui.CalcTextSize(label).X;
+            return (KofiPadding.X * 2) + iconWidth + gap + textWidth + 4f;
         }
 
         public static Vector4 Hex(string hex)

@@ -12,6 +12,7 @@ namespace DutyDM.Windows
     public class ConfigWindow : Window, IDisposable
     {
         private const string InviteUrl = "https://discord.gg/Z4scjq8bdK";
+        private const string KofiUrl = "https://ko-fi.com/marobotic";
 
         private readonly Configuration config;
         private readonly PushService pushService;
@@ -111,6 +112,8 @@ namespace DutyDM.Windows
                 config.PartyFullEnable = partyFullEnable;
                 config.Save();
             }
+            if (partyFullEnable)
+                ImGui.TextColored(Theme.TextMuted, "     Skipped while you're already in a duty.");
 
             ImGui.Dummy(new Vector2(0, 10));
             ImGui.Separator();
@@ -140,6 +143,18 @@ namespace DutyDM.Windows
                 ImGui.TextColored(statusOk ? Theme.AccentGreen : Theme.AccentRed, statusText);
                 ImGui.PopTextWrapPos();
             }
+
+            // Footer - a little Ko-fi love
+            ImGui.Dummy(new Vector2(0, 10));
+            ImGui.Separator();
+            ImGui.Dummy(new Vector2(0, 6));
+            ImGui.AlignTextToFramePadding();
+            ImGui.TextColored(Theme.TextMuted, "Enjoying DutyDM?");
+            ImGui.SameLine();
+            float kofiX = ImGui.GetContentRegionAvail().X - Theme.KofiButtonWidth("Support me on Ko-fi");
+            if (kofiX > 0) ImGui.SetCursorPosX(ImGui.GetCursorPosX() + kofiX);
+            if (Theme.KofiButton("Support me on Ko-fi"))
+                OpenUrl(KofiUrl);
         }
 
         private void SaveConfig()
