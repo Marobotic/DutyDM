@@ -6,9 +6,8 @@ namespace DutyDM
     /// </summary>
     internal static class BotEndpoint
     {
-        // TEMPORARY: dev machine's port-forwarded home IP, for testing.
-        // Swap this to the VPS URL once that's set up. No trailing slash needed.
-        public const string BaseUrl = "http://138.68.142.140:1502";
+        // The bot (bot/ in this repo) on the marobotic.dev droplet, behind nginx. No trailing slash needed.
+        public const string BaseUrl = "https://marobotic.dev/dutydm";
 
         // Optional shared secret. Must match the bot's PUSH_SECRET env var.
         // Leave empty if the bot runs without a secret.

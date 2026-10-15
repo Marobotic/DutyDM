@@ -1,0 +1,10 @@
+{
+  "name": "dutydm-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DMs DutyDM plugin users on Discord when their duty pops",
+  "main": "bot.js",
+  "scripts": { "start": "node bot.js" },
+  "engines": { "node": ">=18" },
+  "dependencies": { "discord.js": "^14.16.3" }
+}
