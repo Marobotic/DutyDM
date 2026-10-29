@@ -95,7 +95,7 @@ namespace DutyDM.Windows
             // Step 2 - username
             ImGui.TextColored(Theme.TextPrimary, "2.  Your Discord username");
             ImGui.Dummy(new Vector2(0, 2));
-            Theme.InputField("##username", "e.g. mayobotic", ref username, 64);
+            Theme.InputField("##username", "e.g. mrbotic", ref username, 64);
             ImGui.TextColored(Theme.TextMuted, "Your unique @username - not your display name.");
             ImGui.Dummy(new Vector2(0, 8));
 

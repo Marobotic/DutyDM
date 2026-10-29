@@ -8,7 +8,7 @@ namespace DutyDM
 {
     /// <summary>
     /// Shared blue-slate theme, kept consistent with the PF Presets plugin so all of
-    /// Mayo Botic's plugins look the same. Colors and helpers are lifted from PfPresets.
+    /// mrbotic's plugins look the same. Colors and helpers are lifted from PfPresets.
     /// </summary>
     internal static class Theme
     {
